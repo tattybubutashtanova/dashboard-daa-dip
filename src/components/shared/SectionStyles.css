@@ -1,0 +1,156 @@
+.section-content {
+  max-width: 100%;
+}
+
+.section-content h1 {
+  color: #333;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid #667eea;
+}
+
+.topic-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.topic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.topic-card h2 {
+  color: #667eea;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.topic-card h3 {
+  color: #764ba2;
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+  margin-top: 1rem;
+}
+
+.topic-card p {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.topic-card ul,
+.topic-card ol {
+  color: #555;
+  line-height: 1.8;
+  margin-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.topic-card li {
+  margin-bottom: 0.5rem;
+}
+
+.sub-topics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.sub-topic {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.formula {
+  background: #e8f0fe;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border-left: 4px solid #4285f4;
+}
+
+.formula p {
+  margin: 0.5rem 0;
+  font-family: 'Courier New', monospace;
+  color: #333;
+}
+
+.formula strong {
+  color: #1976d2;
+}
+
+.code-block {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
+.code-block h4 {
+  color: #4ec9b0;
+  margin-bottom: 0.5rem;
+}
+
+.code-block pre {
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.example-box {
+  background: #fff3cd;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border-left: 4px solid #ffc107;
+}
+
+.example-box p {
+  margin: 0.5rem 0;
+}
+
+.algorithm-box {
+  background: #d1ecf1;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border-left: 4px solid #17a2b8;
+}
+
+.algorithm-box h3 {
+  color: #0c5460;
+  margin-bottom: 0.75rem;
+}
+
+.algorithm-box ol,
+.algorithm-box ul {
+  margin-left: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .sub-topics {
+    grid-template-columns: 1fr;
+  }
+
+  .section-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .topic-card h2 {
+    font-size: 1.3rem;
+  }
+}
+

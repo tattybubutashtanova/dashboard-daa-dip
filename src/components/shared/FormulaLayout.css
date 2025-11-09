@@ -1,0 +1,130 @@
+.formula-layout {
+  margin-bottom: 2rem;
+}
+
+.formula-layout h2 {
+  color: #667eea;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #667eea;
+}
+
+.formula-layout-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.formula-panel {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+  border: 1px solid #e0e0e0;
+  position: sticky;
+  top: 120px;
+}
+
+.formula-box,
+.explanation-box {
+  margin-bottom: 1.5rem;
+}
+
+.formula-box:last-child,
+.explanation-box:last-child {
+  margin-bottom: 0;
+}
+
+.formula-box h3,
+.explanation-box h3 {
+  color: #764ba2;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #764ba2;
+}
+
+.formula-content {
+  background: #e8f0fe;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #4285f4;
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #333;
+  white-space: pre-wrap;
+}
+
+.explanation-content {
+  color: #555;
+  line-height: 1.8;
+  font-size: 0.95rem;
+}
+
+.explanation-content ul,
+.explanation-content ol {
+  margin-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.explanation-content li {
+  margin-bottom: 0.5rem;
+}
+
+.additional-info {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.additional-info h4 {
+  color: #667eea;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.additional-info p {
+  color: #555;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.info-box {
+  background: #e3f2fd;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.info-box p {
+  color: #1565c0;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.formula-content pre {
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+}
+
+.interactive-panel {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 968px) {
+  .formula-layout-content {
+    grid-template-columns: 1fr;
+  }
+
+  .formula-panel {
+    position: static;
+  }
+}
+
