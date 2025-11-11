@@ -68,6 +68,11 @@ function Sidebar() {
             </NavLink>
           </li>
           <li>
+            <NavLink to="/dip/hist-match">
+              Histogram Matching
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/dip/brightness">
               Brightness & Contrast
             </NavLink>
@@ -105,6 +110,22 @@ function Sidebar() {
           <li>
             <NavLink to="/dip/lecture1">
               Sampling & Quantization
+            </NavLink>
+          </li>
+        </ul>
+      </div>
+
+      <div className="sidebar-section">
+        <div className="sidebar-section-title">AI – Neural Networks</div>
+        <ul className="sidebar-nav">
+          <li>
+            <NavLink to="/ai/ann">
+              ANN Visualizer
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/ai/cnn">
+              CNN Visualizer
             </NavLink>
           </li>
         </ul>

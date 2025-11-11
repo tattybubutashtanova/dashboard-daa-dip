@@ -147,30 +147,20 @@ function ImageFiltering() {
       data: `Kernel:\n${kernel.map(r => r.map(v => v.toString().padStart(6)).join(' ')).join('\n')}\n${kernelType !== 'custom' ? `Type: ${predefinedKernels[kernelType].name}\n${predefinedKernels[kernelType].description}` : 'Custom kernel'}`
     })
 
-    // Convert to grayscale for processing
-    const grayscale = []
-    for (let i = 0; i < data.length; i += 4) {
-      const gray = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2])
-      grayscale.push(gray)
-    }
-
-    solutionSteps.push({
-      description: `Step 2: Convert image to grayscale`,
-      data: `Converted ${width * height} pixels to grayscale values`
-    })
-
     // Apply convolution
     const result = new Uint8ClampedArray(data.length)
     let processedCount = 0
 
     solutionSteps.push({
-      description: `Step 3: Apply convolution operation`,
-      data: `Formula: (f * g)(x, y) = Σ Σ f(i, j) × g(x-i, y-j)\nProcessing each pixel with ${kSize}×${kSize} kernel\nUsing zero padding for edge pixels`
+      description: `Step 2: Apply convolution operation`,
+      data: `Formula: (f * g)(x, y) = Σ Σ f(i, j) × g(x-i, y-j)\nProcessing RGB channels independently with ${kSize}×${kSize} kernel\nUsing zero padding for edge pixels`
     })
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        let sum = 0
+        let sumR = 0
+        let sumG = 0
+        let sumB = 0
 
         // Apply kernel
         for (let ky = 0; ky < kSize; ky++) {
@@ -178,23 +168,26 @@ function ImageFiltering() {
             const px = x + kx - kRadius
             const py = y + ky - kRadius
 
-            let pixelValue = 0
             if (px >= 0 && px < width && py >= 0 && py < height) {
-              pixelValue = grayscale[py * width + px]
+              const srcIdx = (py * width + px) * 4
+              const weight = kernel[ky][kx]
+              sumR += data[srcIdx] * weight
+              sumG += data[srcIdx + 1] * weight
+              sumB += data[srcIdx + 2] * weight
             }
-            // Zero padding: pixelValue is already 0 if out of bounds
-
-            sum += pixelValue * kernel[ky][kx]
+            // Zero padding: contributions stay 0 if outside bounds
           }
         }
 
         // Clamp values to [0, 255]
-        const outputValue = Math.max(0, Math.min(255, Math.round(sum)))
+        const outputR = Math.max(0, Math.min(255, Math.round(sumR)))
+        const outputG = Math.max(0, Math.min(255, Math.round(sumG)))
+        const outputB = Math.max(0, Math.min(255, Math.round(sumB)))
 
         const idx = (y * width + x) * 4
-        result[idx] = outputValue
-        result[idx + 1] = outputValue
-        result[idx + 2] = outputValue
+        result[idx] = outputR
+        result[idx + 1] = outputG
+        result[idx + 2] = outputB
         result[idx + 3] = data[idx + 3]
 
         processedCount++
@@ -202,7 +195,7 @@ function ImageFiltering() {
     }
 
     solutionSteps.push({
-      description: `Step 4: Convolution complete`,
+      description: `Step 3: Convolution complete`,
       data: `Processed ${processedCount} pixels\nApplied kernel to entire image\nValues clamped to [0, 255] range`
     })
 

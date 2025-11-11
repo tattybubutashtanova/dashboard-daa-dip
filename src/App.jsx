@@ -12,25 +12,36 @@ import GeneticAlgorithm from './components/DAA/sections/GeneticAlgorithm'
 import BruteForce from './components/DAA/sections/BruteForce'
 import SupportingConcepts from './components/DAA/sections/SupportingConcepts'
 import HuffmanSolver from './components/DAA/algorithms/HuffmanSolver'
-import TSPSolver from './components/DAA/algorithms/TSPSolver'
 import FormulaLayout from './components/shared/FormulaLayout'
 import DijkstraVisualizer from './pages/DAA/DijkstraVisualizer'
 import FloydWarshall from './pages/DAA/FloydWarshall'
+import KnapsackVisualizer from './pages/DAA/KnapsackVisualizer'
+import TSPVisualizer from './pages/DAA/TSPVisualizer'
 import ImageSamplingQuantization from './pages/DIP/ImageSamplingQuantization'
 import EdgeDetection from './pages/DIP/EdgeDetection'
+import ANNVisualizer from './pages/AI/ANNVisualizer'
+import CNNVisualizer from './pages/AI/CNNVisualizer'
 
 // DIP Pages
 import ImageFundamentals from './components/DIP/sections/ImageFundamentals'
 import ImageEnhancement from './components/DIP/sections/ImageEnhancement'
 import ImageFiltering from './components/DIP/sections/ImageFiltering'
 import ImageCompression from './components/DIP/sections/ImageCompression'
+import Grayscale from './pages/DIP/Grayscale'
+import Negative from './pages/DIP/Negative'
+import HistogramEqualization from './pages/DIP/HistogramEqualization'
+import HistogramMatching from './pages/DIP/HistogramMatching'
+import Threshold from './pages/DIP/Threshold'
+import Sharpen from './pages/DIP/Sharpen'
+import Convolution from './pages/DIP/Convolution'
+import SeparateChannels from './pages/DIP/SeparateChannels'
 import DeepLearningCNN from './components/DIP/sections/DeepLearningCNN'
 
 // Get page title based on route
 function getPageTitle(pathname) {
   const titles = {
     '/': 'Dashboard Home',
-    '/daa/knapsack': '0/1 Knapsack Problem',
+    '/daa/knapsack': '0/1 Knapsack Visualizer',
     '/daa/huffman': 'Huffman Coding',
     '/daa/arithmetic': 'Arithmetic Encoding',
     '/daa/coin-change': 'Coin Changing Problem',
@@ -38,6 +49,7 @@ function getPageTitle(pathname) {
     '/dip/grayscale': 'Grayscale Conversion',
     '/dip/negative': 'Image Negative',
     '/dip/histogram': 'Histogram Equalization',
+    '/dip/hist-match': 'Histogram Matching',
     '/dip/brightness': 'Brightness & Contrast',
     '/dip/blur': 'Blur Filter',
     '/dip/edge': 'Edge Detection',
@@ -46,6 +58,8 @@ function getPageTitle(pathname) {
     '/dip/sharpen': 'Sharpen Filter',
     '/dip/convolution': 'Convolution',
     '/dip/channels': 'Separate Channels',
+    '/ai/ann': 'ANN Visualizer',
+    '/ai/cnn': 'CNN Visualizer',
   }
   return titles[pathname] || 'DAA & DIP Dashboard'
 }
@@ -55,6 +69,8 @@ function getPageSubtitle(pathname) {
     return 'Design and Analysis of Algorithms'
   } else if (pathname.startsWith('/dip')) {
     return 'Digital Image Processing'
+  } else if (pathname.startsWith('/ai')) {
+    return 'Neural Networks'
   }
   return 'Interactive Learning Platform'
 }
@@ -78,7 +94,7 @@ function App() {
             {/* DAA Routes */}
             <Route path="/daa/knapsack" element={
               <div className="card">
-                <DynamicProgramming />
+                <KnapsackVisualizer />
               </div>
             } />
             <Route path="/daa/huffman" element={
@@ -121,24 +137,7 @@ function App() {
             } />
             <Route path="/daa/tsp" element={
               <div className="card">
-                <FormulaLayout
-                  title="Traveling Salesman Problem (Branch & Bound)"
-                  formula="Minimize: Σ dist(path[i], path[i+1]) + dist(path[n], path[0])"
-                  explanation={
-                    <>
-                      <p>Find shortest route visiting all cities exactly once and returning to start.</p>
-                      <p><strong>Branch & Bound Algorithm:</strong></p>
-                      <ol>
-                        <li>Calculate lower bound for partial tour</li>
-                        <li>Branch into child nodes (add next city)</li>
-                        <li>Prune nodes if bound ≥ current best</li>
-                        <li>Continue until all tours explored</li>
-                      </ol>
-                    </>
-                  }
-                >
-                  <TSPSolver />
-                </FormulaLayout>
+                <TSPVisualizer />
               </div>
             } />
             
@@ -182,7 +181,7 @@ function App() {
             {/* DIP Routes */}
             <Route path="/dip/grayscale" element={
               <div className="card">
-                <ImageFundamentals />
+                <Grayscale />
               </div>
             } />
             <Route path="/dip/lecture1" element={
@@ -192,12 +191,17 @@ function App() {
             } />
             <Route path="/dip/negative" element={
               <div className="card">
-                <ImageEnhancement />
+                <Negative />
               </div>
             } />
             <Route path="/dip/histogram" element={
               <div className="card">
-                <ImageEnhancement />
+                <HistogramEqualization />
+              </div>
+            } />
+            <Route path="/dip/hist-match" element={
+              <div className="card">
+                <HistogramMatching />
               </div>
             } />
             <Route path="/dip/brightness" element={
@@ -217,22 +221,34 @@ function App() {
             } />
             <Route path="/dip/threshold" element={
               <div className="card">
-                <ImageFiltering />
+                <Threshold />
               </div>
             } />
             <Route path="/dip/sharpen" element={
               <div className="card">
-                <ImageFiltering />
+                <Sharpen />
               </div>
             } />
             <Route path="/dip/convolution" element={
               <div className="card">
-                <ImageFiltering />
+                <Convolution />
               </div>
             } />
             <Route path="/dip/channels" element={
               <div className="card">
-                <ImageFundamentals />
+                <SeparateChannels />
+              </div>
+            } />
+
+            {/* AI Routes */}
+            <Route path="/ai/ann" element={
+              <div className="card">
+                <ANNVisualizer />
+              </div>
+            } />
+            <Route path="/ai/cnn" element={
+              <div className="card">
+                <CNNVisualizer />
               </div>
             } />
             

@@ -49,11 +49,13 @@ export function applyNegative(imageData) {
 export function applyLogTransform(imageData, c = 45) {
   const data = new Uint8ClampedArray(imageData.data)
   for (let i = 0; i < data.length; i += 4) {
-    const r = data[i] / 255
-    const s = c * Math.log(1 + r)
-    data[i] = Math.min(255, s * 255)
-    data[i + 1] = Math.min(255, s * 255)
-    data[i + 2] = Math.min(255, s * 255)
+    const { h, s, v } = rgbToHsv(data[i], data[i + 1], data[i + 2])
+    const transformed = c * Math.log(1 + v * 255)
+    const newV = Math.min(255, transformed) / 255
+    const { r, g, b } = hsvToRgb(h, s, newV)
+    data[i] = r
+    data[i + 1] = g
+    data[i + 2] = b
   }
   return new ImageData(data, imageData.width, imageData.height)
 }
@@ -64,11 +66,12 @@ export function applyLogTransform(imageData, c = 45) {
 export function applyGammaTransform(imageData, gamma = 1.0, c = 1.0) {
   const data = new Uint8ClampedArray(imageData.data)
   for (let i = 0; i < data.length; i += 4) {
-    const r = data[i] / 255
-    const s = c * Math.pow(r, gamma)
-    data[i] = Math.min(255, s * 255)
-    data[i + 1] = Math.min(255, s * 255)
-    data[i + 2] = Math.min(255, s * 255)
+    const { h, s, v } = rgbToHsv(data[i], data[i + 1], data[i + 2])
+    const newV = Math.min(1, c * Math.pow(v, gamma))
+    const { r, g, b } = hsvToRgb(h, s, newV)
+    data[i] = r
+    data[i + 1] = g
+    data[i + 2] = b
   }
   return new ImageData(data, imageData.width, imageData.height)
 }
@@ -78,25 +81,31 @@ export function applyGammaTransform(imageData, gamma = 1.0, c = 1.0) {
  */
 export function applyContrastStretch(imageData) {
   const data = new Uint8ClampedArray(imageData.data)
-  
-  // Find min and max
-  let min = 255, max = 0
+  const pixels = data.length / 4
+  const hsvValues = new Array(pixels)
+  let minV = 1
+  let maxV = 0
+
   for (let i = 0; i < data.length; i += 4) {
-    const gray = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2])
-    min = Math.min(min, gray)
-    max = Math.max(max, gray)
+    const idx = i / 4
+    const hsv = rgbToHsv(data[i], data[i + 1], data[i + 2])
+    hsvValues[idx] = hsv
+    if (hsv.v < minV) minV = hsv.v
+    if (hsv.v > maxV) maxV = hsv.v
   }
-  
-  // Apply stretching: s = (r - r_min) * (L-1) / (r_max - r_min)
-  const L = 255
-  const range = max - min || 1
+
+  const range = maxV - minV || 1
+
   for (let i = 0; i < data.length; i += 4) {
-    const gray = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2])
-    const stretched = ((gray - min) * (L - 1)) / range
-    data[i] = stretched
-    data[i + 1] = stretched
-    data[i + 2] = stretched
+    const idx = i / 4
+    const { h, s, v } = hsvValues[idx]
+    const newV = (v - minV) / range
+    const { r, g, b } = hsvToRgb(h, s, newV)
+    data[i] = r
+    data[i + 1] = g
+    data[i + 2] = b
   }
+
   return new ImageData(data, imageData.width, imageData.height)
 }
 
@@ -105,37 +114,103 @@ export function applyContrastStretch(imageData) {
  */
 export function applyHistogramEqualization(imageData) {
   const data = new Uint8ClampedArray(imageData.data)
-  const hist = new Array(256).fill(0)
   const pixels = data.length / 4
-  
-  // Calculate histogram
+  const hist = new Array(256).fill(0)
+  const hsvValues = new Array(pixels)
+
+  // Build histogram on V channel and store HSV values
   for (let i = 0; i < data.length; i += 4) {
-    const gray = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2])
-    hist[gray]++
+    const pixelIndex = i / 4
+    const r = data[i]
+    const g = data[i + 1]
+    const b = data[i + 2]
+    const { h, s, v } = rgbToHsv(r, g, b)
+    hsvValues[pixelIndex] = { h, s, v }
+    const vIdx = Math.min(255, Math.max(0, Math.round(v * 255)))
+    hist[vIdx]++
   }
-  
+
   // Calculate cumulative distribution
   const cdf = new Array(256)
   cdf[0] = hist[0]
   for (let i = 1; i < 256; i++) {
     cdf[i] = cdf[i - 1] + hist[i]
   }
-  
-  // Normalize CDF
-  const cdfMin = cdf.find(v => v > 0)
+
+  const cdfMin = cdf.find(v => v > 0) || 0
+  const denom = pixels - cdfMin || 1
+
+  // Normalize CDF to [0, 255]
   for (let i = 0; i < 256; i++) {
-    cdf[i] = Math.round(((cdf[i] - cdfMin) / (pixels - cdfMin)) * 255)
+    cdf[i] = Math.round(((cdf[i] - cdfMin) / denom) * 255)
   }
-  
-  // Apply transformation
+
+  // Apply equalization on V channel and convert back to RGB
   for (let i = 0; i < data.length; i += 4) {
-    const gray = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2])
-    const newGray = cdf[gray]
-    data[i] = newGray
-    data[i + 1] = newGray
-    data[i + 2] = newGray
+    const pixelIndex = i / 4
+    const { h, s, v } = hsvValues[pixelIndex]
+    const vIdx = Math.min(255, Math.max(0, Math.round(v * 255)))
+    const newV = (cdf[vIdx] || 0) / 255
+    const { r, g, b } = hsvToRgb(h, s, newV)
+    data[i] = r
+    data[i + 1] = g
+    data[i + 2] = b
   }
+
   return new ImageData(data, imageData.width, imageData.height)
+}
+
+export function rgbToHsv(r, g, b) {
+  const rn = r / 255
+  const gn = g / 255
+  const bn = b / 255
+  const max = Math.max(rn, gn, bn)
+  const min = Math.min(rn, gn, bn)
+  const delta = max - min
+
+  let h = 0
+  if (delta !== 0) {
+    if (max === rn) {
+      h = ((gn - bn) / delta) % 6
+    } else if (max === gn) {
+      h = (bn - rn) / delta + 2
+    } else {
+      h = (rn - gn) / delta + 4
+    }
+    h *= 60
+    if (h < 0) h += 360
+  }
+
+  const s = max === 0 ? 0 : delta / max
+  return { h, s, v: max }
+}
+
+export function hsvToRgb(h, s, v) {
+  const c = v * s
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
+  const m = v - c
+
+  let rPrime = 0, gPrime = 0, bPrime = 0
+
+  if (h >= 0 && h < 60) {
+    rPrime = c; gPrime = x; bPrime = 0
+  } else if (h >= 60 && h < 120) {
+    rPrime = x; gPrime = c; bPrime = 0
+  } else if (h >= 120 && h < 180) {
+    rPrime = 0; gPrime = c; bPrime = x
+  } else if (h >= 180 && h < 240) {
+    rPrime = 0; gPrime = x; bPrime = c
+  } else if (h >= 240 && h < 300) {
+    rPrime = x; gPrime = 0; bPrime = c
+  } else {
+    rPrime = c; gPrime = 0; bPrime = x
+  }
+
+  return {
+    r: Math.round((rPrime + m) * 255),
+    g: Math.round((gPrime + m) * 255),
+    b: Math.round((bPrime + m) * 255)
+  }
 }
 
 /**

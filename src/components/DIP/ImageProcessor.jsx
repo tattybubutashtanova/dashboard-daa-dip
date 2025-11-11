@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   loadImageFromFile,
   imageToCanvas,
@@ -34,16 +34,6 @@ function ImageProcessor({ availableFilters = [] }) {
     try {
       const img = await loadImageFromFile(file)
       setOriginalImage(img)
-      
-      // Draw original image
-      const canvas = imageToCanvas(img)
-      if (originalCanvasRef.current) {
-        const ctx = originalCanvasRef.current.getContext('2d')
-        originalCanvasRef.current.width = canvas.width
-        originalCanvasRef.current.height = canvas.height
-        ctx.drawImage(canvas, 0, 0)
-      }
-      
       setProcessedImage(null)
     } catch (error) {
       console.error('Error loading image:', error)
@@ -236,7 +226,7 @@ function ImageProcessor({ availableFilters = [] }) {
   }
 
   const resetImage = () => {
-    if (originalImage && originalCanvasRef.current) {
+    if (originalImage && processedCanvasRef.current) {
       const canvas = imageToCanvas(originalImage)
       const ctx = processedCanvasRef.current.getContext('2d')
       processedCanvasRef.current.width = canvas.width
@@ -245,6 +235,30 @@ function ImageProcessor({ availableFilters = [] }) {
       setProcessedImage(null)
     }
   }
+
+  useEffect(() => {
+    if (!originalImage || !originalCanvasRef.current) return
+    const canvas = imageToCanvas(originalImage)
+    const ctx = originalCanvasRef.current.getContext('2d')
+    originalCanvasRef.current.width = canvas.width
+    originalCanvasRef.current.height = canvas.height
+    ctx.drawImage(canvas, 0, 0)
+  }, [originalImage])
+
+  useEffect(() => {
+    if (processedImage && processedCanvasRef.current) {
+      const ctx = processedCanvasRef.current.getContext('2d')
+      processedCanvasRef.current.width = processedImage.width
+      processedCanvasRef.current.height = processedImage.height
+      ctx.drawImage(processedImage, 0, 0)
+    } else if (!processedImage && processedCanvasRef.current && originalImage) {
+      const canvas = imageToCanvas(originalImage)
+      const ctx = processedCanvasRef.current.getContext('2d')
+      processedCanvasRef.current.width = canvas.width
+      processedCanvasRef.current.height = canvas.height
+      ctx.drawImage(canvas, 0, 0)
+    }
+  }, [processedImage, originalImage])
 
   return (
     <div className="image-processor">
