@@ -6,10 +6,10 @@ import StepByStepDisplay from '../../components/shared/StepByStepDisplay'
 
 function KnapsackVisualizer() {
   const [items, setItems] = useState([
-    { id: 1, value: 60, weight: 10 },
-    { id: 2, value: 100, weight: 20 },
-    { id: 3, value: 120, weight: 30 },
-    { id: 4, value: 80, weight: 24 },
+    { id: 1, benefit: 60, weight: 10 },
+    { id: 2, benefit: 100, weight: 20 },
+    { id: 3, benefit: 120, weight: 30 },
+    { id: 4, benefit: 80, weight: 24 },
   ])
   const [capacity, setCapacity] = useState(50)
   const [approach, setApproach] = useState('dp') // 'dp' | 'greedy' | 'tree'
@@ -26,7 +26,7 @@ function KnapsackVisualizer() {
   }
 
   const addItem = () => {
-    setItems([...items, { id: items.length + 1, value: 50, weight: 10 }])
+    setItems([...items, { id: items.length + 1, benefit: 50, weight: 10 }])
   }
 
   const removeItem = (idx) => {
@@ -50,17 +50,17 @@ function KnapsackVisualizer() {
     s.push({ description: 'Initialize DP table', data: `Rows: items (0..${n}), Columns: capacity (0..${W})` })
 
     for (let i = 1; i <= n; i++) {
-      const { value: vi, weight: wi } = items[i - 1]
+      const { benefit: bi, weight: wi } = items[i - 1]
       for (let w = 0; w <= W; w++) {
         if (wi > w) {
           table[i][w] = table[i - 1][w]
         } else {
-          table[i][w] = Math.max(table[i - 1][w], table[i - 1][w - wi] + vi)
+          table[i][w] = Math.max(table[i - 1][w], table[i - 1][w - wi] + bi)
         }
       }
       s.push({
-        description: `Processed item ${i} (value=${vi}, weight=${wi})`,
-        data: `Best values up to capacity W after item ${i} computed`,
+        description: `Processed item ${i} (benefit=${bi}, weight=${wi})`,
+        data: `Best benefits up to capacity W after item ${i} computed`,
       })
     }
 
@@ -75,35 +75,35 @@ function KnapsackVisualizer() {
     }
     chosen.reverse()
 
-    const totalValue = chosen.reduce((acc, idx) => acc + items[idx].value, 0)
+    const totalBenefit = chosen.reduce((acc, idx) => acc + items[idx].benefit, 0)
     const totalWeight = chosen.reduce((acc, idx) => acc + items[idx].weight, 0)
     s.push({
       description: 'Reconstruction',
       data: `Chosen item indices (0-based): [${chosen.join(', ')}]`,
-      result: `Total value = ${totalValue}, Total weight = ${totalWeight}`,
+      result: `Total benefit = ${totalBenefit}, Total weight = ${totalWeight}`,
     })
 
     setSteps(s)
     setResult({
       approach: 'Dynamic Programming',
       chosenIndices: chosen,
-      totalValue,
+      totalBenefit,
       totalWeight,
     })
     setDpTable({ table, n, W })
     setTreeData(null)
   }
 
-  // Greedy by value-to-weight ratio (not optimal for 0/1 but illustrative)
+  // Greedy by benefit-to-weight ratio (not optimal for 0/1 but illustrative)
   const solveGreedy = () => {
     const W = Math.max(0, parseInt(capacity) || 0)
     const s = []
-    const withRatio = items.map((it, idx) => ({ ...it, idx, ratio: it.weight ? it.value / it.weight : 0 }))
+    const withRatio = items.map((it, idx) => ({ ...it, idx, ratio: it.weight ? it.benefit / it.weight : 0 }))
     withRatio.sort((a, b) => b.ratio - a.ratio)
 
     s.push({
-      description: 'Sort items by value/weight ratio (descending)',
-      data: withRatio.map(it => `#${it.idx}: v=${it.value}, w=${it.weight}, r=${(it.ratio || 0).toFixed(3)}`).join('\n'),
+      description: 'Sort items by benefit/weight ratio (descending)',
+      data: withRatio.map(it => `#${it.idx}: b=${it.benefit}, w=${it.weight}, r=${(it.ratio || 0).toFixed(3)}`).join('\n'),
     })
 
     let remaining = W
@@ -118,18 +118,18 @@ function KnapsackVisualizer() {
       }
     }
     chosen.sort((a, b) => a - b)
-    const totalValue = chosen.reduce((acc, idx) => acc + items[idx].value, 0)
+    const totalBenefit = chosen.reduce((acc, idx) => acc + items[idx].benefit, 0)
     const totalWeight = chosen.reduce((acc, idx) => acc + items[idx].weight, 0)
     s.push({
       description: 'Greedy result',
-      result: `Total value = ${totalValue}, Total weight = ${totalWeight}`,
+      result: `Total benefit = ${totalBenefit}, Total weight = ${totalWeight}`,
     })
 
     setSteps(s)
     setResult({
       approach: 'Greedy (ratio)',
       chosenIndices: chosen,
-      totalValue,
+      totalBenefit,
       totalWeight,
     })
     setDpTable(null)
@@ -142,27 +142,27 @@ function KnapsackVisualizer() {
     const n = items.length
     const s = []
 
-    let bestValue = 0
+    let bestBenefit = 0
     let bestSet = []
     let nodeId = 0
 
-    const buildNodeLabel = (i, currWeight, currValue, chosen, remainingCap, itemIdx) => {
-      return `i=${i}, w=${currWeight}, v=${currValue}, cap=${remainingCap}, chosen=[${chosen.join(', ')}]`
+    const buildNodeLabel = (i, currWeight, currBenefit, chosen, remainingCap, itemIdx) => {
+      return `i=${i}, w=${currWeight}, b=${currBenefit}, cap=${remainingCap}, chosen=[${chosen.join(', ')}]`
     }
 
-    const dfs = (i, currWeight, currValue, chosen, decision = 'Start') => {
+    const dfs = (i, currWeight, currBenefit, chosen, decision = 'Start') => {
       const remainingCap = W - currWeight
       const node = {
         id: nodeId++,
         decision,
-        info: buildNodeLabel(i, currWeight, currValue, chosen, remainingCap, i < n ? i : null),
+        info: buildNodeLabel(i, currWeight, currBenefit, chosen, remainingCap, i < n ? i : null),
         i,
         currWeight,
-        currValue,
+        currBenefit,
         remainingCap,
         itemIndex: i,
         itemWeight: i < n ? items[i]?.weight : undefined,
-        itemValue: i < n ? items[i]?.value : undefined,
+        itemBenefit: i < n ? items[i]?.benefit : undefined,
         status: 'active',
         children: [],
       }
@@ -179,11 +179,11 @@ function KnapsackVisualizer() {
       }
 
       if (i === n) {
-        if (currValue > bestValue) {
-          bestValue = currValue
+        if (currBenefit > bestBenefit) {
+          bestBenefit = currBenefit
           bestSet = [...chosen]
           node.status = 'best'
-          s.push({ description: 'Update best', result: `bestValue=${bestValue}` })
+          s.push({ description: 'Update best', result: `bestBenefit=${bestBenefit}` })
         } else {
           node.status = 'leaf'
         }
@@ -193,7 +193,7 @@ function KnapsackVisualizer() {
       const includeNode = dfs(
         i + 1,
         currWeight + items[i].weight,
-        currValue + items[i].value,
+        currBenefit + items[i].benefit,
         [...chosen, i],
         `Include item ${i}`
       )
@@ -204,7 +204,7 @@ function KnapsackVisualizer() {
       const excludeNode = dfs(
         i + 1,
         currWeight,
-        currValue,
+        currBenefit,
         chosen,
         `Exclude item ${i}`
       )
@@ -220,14 +220,14 @@ function KnapsackVisualizer() {
     const totalWeight = bestSet.reduce((acc, idx) => acc + items[idx].weight, 0)
     s.push({
       description: 'Final best found',
-      result: `Total value = ${bestValue}, Total weight = ${totalWeight}, Items = [${bestSet.join(', ')}]`,
+      result: `Total benefit = ${bestBenefit}, Total weight = ${totalWeight}, Items = [${bestSet.join(', ')}]`,
     })
 
     setSteps(s)
     setResult({
       approach: 'Tree Search (DFS include/exclude)',
       chosenIndices: bestSet,
-      totalValue: bestValue,
+      totalBenefit: bestBenefit,
       totalWeight,
     })
     setDpTable(null)
@@ -236,10 +236,10 @@ function KnapsackVisualizer() {
 
   const explanation = (
     <>
-      <p>0/1 Knapsack: choose items to maximize total value without exceeding capacity. Each item can be taken at most once.</p>
+      <p>0/1 Knapsack: choose items to maximize total benefit without exceeding capacity. Each item can be taken at most once.</p>
       <ul>
-        <li><strong>DP:</strong> Optimal via table of best values for (i, w).</li>
-        <li><strong>Greedy:</strong> Fast ratio heuristic (not always optimal).</li>
+        <li><strong>DP:</strong> Optimal via table of best benefits for (i, w).</li>
+        <li><strong>Greedy:</strong> Fast benefit-to-weight heuristic (not always optimal).</li>
         <li><strong>Tree:</strong> Explore include/exclude decisions; shows the search tree.</li>
       </ul>
     </>
@@ -248,17 +248,17 @@ function KnapsackVisualizer() {
   return (
     <InteractivePage
       title="0/1 Knapsack Visualizer"
-      formula="DP: best[i][w] = max(best[i-1][w], best[i-1][w-w_i] + v_i)"
+      formula="DP: best[i][w] = max(best[i-1][w], best[i-1][w-w_i] + b_i)"
       explanation={explanation}
       inputSection={
         <div>
-          <InputCard title="Items (value, weight)">
+          <InputCard title="Items (benefit, weight)">
             {items.map((it, idx) => (
               <div key={it.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
                 <span style={{ width: 28, textAlign: 'right' }}>#{it.id}</span>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  value
-                  <input type="number" min="0" step="1" value={it.value} onChange={(e) => updateItem(idx, 'value', e.target.value)} style={{ width: 90 }} />
+                  benefit
+                  <input type="number" min="0" step="1" value={it.benefit} onChange={(e) => updateItem(idx, 'benefit', e.target.value)} style={{ width: 90 }} />
                 </label>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   weight
@@ -281,7 +281,7 @@ function KnapsackVisualizer() {
               <label>Approach</label>
               <select value={approach} onChange={(e) => setApproach(e.target.value)}>
                 <option value="dp">Dynamic Programming</option>
-                <option value="greedy">Greedy (value/weight)</option>
+                <option value="greedy">Greedy (benefit/weight)</option>
                 <option value="tree">Tree Visualization (DFS)</option>
               </select>
             </div>
@@ -310,18 +310,18 @@ function KnapsackVisualizer() {
                 <thead>
                   <tr>
                     <th style={{ textAlign: 'left', padding: 6 }}>#</th>
-                    <th style={{ textAlign: 'left', padding: 6 }}>Value</th>
+                    <th style={{ textAlign: 'left', padding: 6 }}>Benefit</th>
                     <th style={{ textAlign: 'left', padding: 6 }}>Weight</th>
-                    <th style={{ textAlign: 'left', padding: 6 }}>Value/Weight</th>
+                    <th style={{ textAlign: 'left', padding: 6 }}>Benefit/Weight</th>
                   </tr>
                 </thead>
                 <tbody>
                   {items.map((it, idx) => (
                     <tr key={idx} style={{ borderTop: '1px solid #eee' }}>
                       <td style={{ padding: 6 }}>{idx}</td>
-                      <td style={{ padding: 6 }}>{it.value}</td>
+                      <td style={{ padding: 6 }}>{it.benefit}</td>
                       <td style={{ padding: 6 }}>{it.weight}</td>
-                      <td style={{ padding: 6 }}>{it.weight ? (it.value / it.weight).toFixed(3) : '—'}</td>
+                      <td style={{ padding: 6 }}>{it.weight ? (it.benefit / it.weight).toFixed(3) : '—'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -333,14 +333,14 @@ function KnapsackVisualizer() {
             <OutputCard title={`Result — ${result.approach}`}>
               <div style={{ padding: '0.5rem' }}>
                 <p><strong>Chosen items (0-based):</strong> [{result.chosenIndices.join(', ')}]</p>
-                <p><strong>Total value:</strong> {result.totalValue}</p>
+                <p><strong>Total benefit:</strong> {result.totalBenefit}</p>
                 <p><strong>Total weight:</strong> {result.totalWeight}</p>
               </div>
             </OutputCard>
           )}
 
           {dpTable && (
-            <OutputCard title="DP Table (best value)">
+            <OutputCard title="DP Table (best benefit)">
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ borderCollapse: 'collapse' }}>
                   <thead>
@@ -582,7 +582,7 @@ function renderTreeDiagram(root) {
           levelNodes.map((node, i) => {
             const x = xPos(levelNodes.length, i)
             const y = yPos(l)
-            const title = node.itemIndex != null && node.itemWeight != null && node.itemValue != null
+            const title = node.itemIndex != null && node.itemWeight != null && node.itemBenefit != null
               ? `Item ${node.itemIndex + 1}`
               : 'Leaf'
             return (
@@ -610,7 +610,7 @@ function renderTreeDiagram(root) {
                 >
                   {title}
                 </text>
-                {node.itemWeight != null && node.itemValue != null && (
+                {node.itemWeight != null && node.itemBenefit != null && (
                   <text
                     x={x + NODE_W / 2}
                     y={y + 48}
@@ -619,7 +619,7 @@ function renderTreeDiagram(root) {
                     fontSize="14"
                     fill="#334155"
                   >
-                    {`W:${node.itemWeight} V:${node.itemValue}`}
+                    {`W:${node.itemWeight} B:${node.itemBenefit}`}
                   </text>
                 )}
                 <text

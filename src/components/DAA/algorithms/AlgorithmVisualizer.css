@@ -131,6 +131,11 @@
   flex-wrap: wrap;
 }
 
+.coins-display.detailed {
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .coin-item {
   background: white;
   padding: 0.5rem 1rem;
@@ -139,6 +144,29 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.coin-item.editable {
+  gap: 0.75rem;
+}
+
+.coin-item.editable input {
+  width: 100px;
+  padding: 0.4rem;
+  border: 1px solid #ccd3ff;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.coin-item.editable .coin-label {
+  font-weight: 700;
+  color: #4c51bf;
+}
+
+.coin-item.editable .coin-weight {
+  font-size: 0.9rem;
+  color: #475569;
 }
 
 .coin-item span {
@@ -236,6 +264,74 @@
   padding: 1rem;
   border-radius: 6px;
   border-left: 4px solid #dc3545;
+}
+
+.steps-display {
+  margin-top: 1.5rem;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 1.25rem;
+}
+
+.steps-display h5 {
+  margin-bottom: 0.75rem;
+  color: #1f2937;
+}
+
+.steps-display ol {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.steps-display li {
+  color: #374151;
+  line-height: 1.4;
+}
+
+.dp-table-wrapper {
+  margin-top: 1.5rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dp-table-wrapper h5 {
+  margin-bottom: 0.75rem;
+  color: #1f2937;
+}
+
+.dp-table-scroll {
+  overflow-x: auto;
+}
+
+.dp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dp-table th,
+.dp-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.dp-table thead th {
+  background: #eef2ff;
+  color: #3730a3;
+  font-weight: 700;
+}
+
+.dp-table tbody th {
+  background: #f8fafc;
+  color: #1e3a8a;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {

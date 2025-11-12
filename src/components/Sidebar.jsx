@@ -112,6 +112,11 @@ function Sidebar() {
               Sampling & Quantization
             </NavLink>
           </li>
+          <li>
+            <NavLink to="/dip/compression">
+              Image Compression
+            </NavLink>
+          </li>
         </ul>
       </div>
 

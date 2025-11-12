@@ -27,6 +27,7 @@ import ImageFundamentals from './components/DIP/sections/ImageFundamentals'
 import ImageEnhancement from './components/DIP/sections/ImageEnhancement'
 import ImageFiltering from './components/DIP/sections/ImageFiltering'
 import ImageCompression from './components/DIP/sections/ImageCompression'
+import ArithmeticEncoding from './pages/DAA/ArithmeticEncoding'
 import Grayscale from './pages/DIP/Grayscale'
 import Negative from './pages/DIP/Negative'
 import HistogramEqualization from './pages/DIP/HistogramEqualization'
@@ -122,7 +123,7 @@ function App() {
             } />
             <Route path="/daa/arithmetic" element={
               <div className="card">
-                <ImageCompression />
+                <ArithmeticEncoding />
               </div>
             } />
             <Route path="/daa/coin-change" element={
